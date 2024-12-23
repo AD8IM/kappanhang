@@ -294,6 +294,7 @@ func (s *controlStream) loop() {
 	for {
 		select {
 		case r := <-s.common.readChan:
+			// unless we're trying to deinit the connection, handle the data sent by the radio
 			if !s.deinitializing {
 				if err := s.handleRead(r); err != nil {
 					reportError(err)

@@ -46,7 +46,7 @@ func wait(d time.Duration, osSignal chan os.Signal) (shouldExit bool) {
 }
 
 func runControlStream(osSignal chan os.Signal) (requireWait, shouldExit bool, exitCode int) {
-	// Depleting gotErrChan.
+	// drain off any messages on the gotErrChan channel
 	var finished bool
 	for !finished {
 		select {
@@ -56,6 +56,10 @@ func runControlStream(osSignal chan os.Signal) (requireWait, shouldExit bool, ex
 		}
 	}
 
+	// create a new control stream object and initialize it
+	// the initialization will do the auth exchange and then starts a go routine
+	// which starts a reauth-needed timer and listens on the UDP connection stream
+	// for incoming data to handle
 	ctrl := &controlStream{}
 	if err := ctrl.init(); err != nil {
 		log.Error(err)
@@ -66,6 +70,8 @@ func runControlStream(osSignal chan os.Signal) (requireWait, shouldExit bool, ex
 		return
 	}
 
+	// block until we hear quit request, signal from OS, or an error
+	//  in all cases we'll deinit the control stream here
 	select {
 	// Need to wait before reinit because the IC-705 will disconnect our audio stream eventually
 	//   if we relogin in a too short interval without a deauth...
