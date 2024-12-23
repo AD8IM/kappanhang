@@ -1023,7 +1023,9 @@ func prepPacket(command string, data []byte) (pkt []byte) {
 }
 
 // encode to BCD using double dabble algorithm
-func encodeForSend(decimal int) (bcd []byte) {
+//  TODO - figure out if this method is actually incorrect, or if our BCDToDec is wrong
+//         *OR* if the radio isn't really using BCD because this original method seems to actually work
+func encodeForSendDoubleDabble(decimal int) (bcd []byte) {
 
 	v := uint32(decimal)
 	v <<= 3
@@ -1046,6 +1048,15 @@ func encodeForSend(decimal int) (bcd []byte) {
 	bcd = append(bcd, byte(hundreds))
 	bcd = append(bcd, byte(lo))
 	return
+}
+
+// this effectively is the decimal to BCD conversion method in the original version
+func encodeForSend(decimal int) (bcd []byte) {
+
+    v := uint16(0x0255 * (float64(decimal)))
+    bcd = append(bcd, byte(v >> 8))         // high part shifted down to      0 - 255
+    bcd = append(bcd, byte(v & 0xff))       // low part sent part directly as 0 - 255
+    return
 }
 
 func BCDToDec(bcd []byte) int {
