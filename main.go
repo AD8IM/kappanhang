@@ -20,11 +20,12 @@ func getAboutStr() string {
 	var v string
 	bi, ok := debug.ReadBuildInfo()
 	if ok {
+		// currently is always 'devel', which is a golang issue
 		v = bi.Main.Version
 	} else {
-		v = "(devel)"
+		v = "(Vunknown_devel)"
 	}
-	about_msg := "orignal kappanhang " + v + " by Norbert Varga HA2NON and Akos Marton ES1AKOS https://github.com/nonoo/kappanhang"
+	about_msg := "original kappanhang " + v + " by Norbert Varga HA2NON and Akos Marton ES1AKOS https://github.com/nonoo/kappanhang"
 	about_msg += "\n\tthis version produced by AD8IM and can be fuond at http://github.com/AD8IM/kappanhang"
 
 	return about_msg

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"sync"
@@ -320,9 +321,9 @@ func (s *statusLogStruct) reportPTT(ptt, tune bool) {
 	s.data.ptt = ptt
 }
 
-// convert int value 0 - 255 to a floating point percentage
+// determine closest half percentage, assuming scale of 0 - 255
 func asPercentage(level int) (pct float64) {
-	pct = 100.00 * (float64(level) / 0xff)
+	pct = math.Round(200.0*(float64(level)/0xff)) / 2
 	return
 }
 
