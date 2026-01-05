@@ -137,7 +137,7 @@ func (s *rigctldStruct) processCmd(cmd string) (close bool, err error) {
 		err = s.send(civControl.state.freq, "\n")
 	case cmdSplit[0] == "F", cmdSplit[0] == "\\set_freq":
 		var f float64
-		f, err = strconv.ParseFloat(cmdSplit[1], 0)
+		f, err = strconv.ParseFloat(cmdSplit[1], 64)
 		if err != nil {
 			_ = s.sendReplyCode(rigctldInvalidParam)
 			return
@@ -285,7 +285,7 @@ func (s *rigctldStruct) processCmd(cmd string) (close bool, err error) {
 		err = s.send(civControl.state.subFreq, "\n")
 	case cmdSplit[0] == "I", cmdSplit[0] == "\\set_split_freq":
 		var f float64
-		f, err = strconv.ParseFloat(cmdSplit[1], 0)
+		f, err = strconv.ParseFloat(cmdSplit[1], 64)
 		if err != nil {
 			_ = s.sendReplyCode(rigctldInvalidParam)
 			return

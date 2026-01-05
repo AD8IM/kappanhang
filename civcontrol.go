@@ -17,6 +17,8 @@ const OFF = 0
 const OK = 0xfb
 const NG = 0xfa
 
+var pctStepSize = (1.0 / 100.0) * 0xff
+
 // Commands reference: https://www.icomeurope.com/wp-content/uploads/2020/08/IC-705_ENG_CI-V_1_20200721.pdf
 type civOperatingMode struct {
 	name string
@@ -204,7 +206,7 @@ type CIVCmdSet struct {
 	send   string
 	read   string
 	cmdSeq []byte
-	//datasize    int // how many bytes for data send/return
+	//datasize    int     // how many bytes for data send/return
 	//statusonly  bool    // true if return|send is just an OK or NG byte
 }
 
@@ -1023,10 +1025,9 @@ func prepPacket(command string, data []byte) (pkt []byte) {
 }
 
 // encode to BCD using double dabble algorithm
-//  TODO - figure out if this method is actually incorrect, or if our BCDToDec is wrong
-//         *OR* if the radio isn't really using BCD because this original method seems to actually work
+//
+//	TODO - profile against the DecToBCD method
 func encodeForSendDoubleDabble(decimal int) (bcd []byte) {
-
 	v := uint32(decimal)
 	v <<= 3
 	for shifts := 3; shifts < 8; shifts++ {
@@ -1050,30 +1051,46 @@ func encodeForSendDoubleDabble(decimal int) (bcd []byte) {
 	return
 }
 
-// this effectively is the decimal to BCD conversion method in the original version
 func encodeForSend(decimal int) (bcd []byte) {
+	bcd = DecToBCD(decimal)
+	fmt.Printf("DEBUG: encodeForSend: input=%v  BCD=%v\n\n", decimal, bcd)
+	return
+}
 
-    v := uint16(0x0255 * (float64(decimal)))
-    bcd = append(bcd, byte(v >> 8))         // high part shifted down to      0 - 255
-    bcd = append(bcd, byte(v & 0xff))       // low part sent part directly as 0 - 255
-    return
+func DecToBCD(decimal int) []byte {
+	buf := make([]byte, 2)
+	if decimal > 0 {
+		remainder := decimal
+		for pos := 1; pos >= 0 && remainder > 0; pos-- {
+			tail := byte(remainder % 100)
+			hi, lo := tail/10, tail%10
+			buf[pos] = byte(hi<<4 + lo)
+			remainder = remainder / 100
+		}
+	}
+	return buf
 }
 
 func BCDToDec(bcd []byte) int {
-	return int(bcd[0]*100 + bcd[1])
+	digits := len(bcd)
+	result := uint64(0)
+	for i, b := range bcd {
+		hi, lo := b>>4, b&0x0f
+		if hi > 9 || lo > 9 {
+			return 0
+		}
+		result += uint64(hi*10+lo) * multiplyByHundreds(byte(digits-i)-1)
+	}
+	return int(result)
 }
 
-/*
-func pctAsBCD(pct int) (BCD []byte) {
-    scaled := uint16(255 * (float64(pct) / 100))
-    return encodeForSend(scaled)
+func multiplyByHundreds(power byte) uint64 {
+	result := uint64(1)
+	for i := byte(0); i < power; i++ {
+		result *= 100
+	}
+	return result
 }
-
-func BCDAsPct(bcd []byte) (pct int) {
-	pct = int(100 * float64(BCDToDec(bcd)) / 0xff)
-	return
-}
-*/
 
 func BCDToSLevel(bcd []byte) (sLevel int) {
 	// BCD to S-level
@@ -1108,7 +1125,7 @@ func BCDToVd(bcd []byte) (Vd float64) {
 	return
 }
 
-// NOTE: maybe call this decToBCDByDecade? or BCDDigit?
+// NOTE: maybe call this DecToBCDByDecade? or BCDDigit?
 func (s *civControlStruct) getDigit(v uint, decade int) byte {
 	asDecimal := float64(v)
 	for decade > 0 {
@@ -1136,6 +1153,11 @@ func (s *civControlStruct) setPwr(level int) error {
 	return s.sendCmd(&s.state.setPwr)
 }
 
+func (s *civControlStruct) setPwrPct(pct int) error {
+	steps := math.Round(float64(pct) * pctStepSize)
+	return s.setPwr(int(steps))
+}
+
 func (s *civControlStruct) incPwr() error {
 	if s.state.pwrLevel < 255 {
 		return s.setPwr(s.state.pwrLevel + 1)
@@ -1153,6 +1175,11 @@ func (s *civControlStruct) decPwr() error {
 func (s *civControlStruct) setRFGain(level int) error {
 	s.initCmd(&s.state.setRFGain, "setRFGain", prepPacket("setRFGain", encodeForSend(level)))
 	return s.sendCmd(&s.state.setRFGain)
+}
+
+func (s *civControlStruct) setRFGainPct(pct int) error {
+	steps := math.Round(float64(pct) * pctStepSize)
+	return s.setRFGain(int(steps))
 }
 
 func (s *civControlStruct) incRFGain() error {

@@ -24,83 +24,83 @@ func handleHotkey(k byte) {
 			log.Error("can't decrease power: ", err)
 		}
 	case '0':
-		if err := civControl.setPwr(0); err != nil {
+		if err := civControl.setPwrPct(0); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '1':
-		if err := civControl.setPwr(10); err != nil {
+		if err := civControl.setPwrPct(10); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '2':
-		if err := civControl.setPwr(20); err != nil {
+		if err := civControl.setPwrPct(20); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '3':
-		if err := civControl.setPwr(30); err != nil {
+		if err := civControl.setPwrPct(30); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '4':
-		if err := civControl.setPwr(40); err != nil {
+		if err := civControl.setPwrPct(40); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '5':
-		if err := civControl.setPwr(50); err != nil {
+		if err := civControl.setPwrPct(50); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '6':
-		if err := civControl.setPwr(60); err != nil {
+		if err := civControl.setPwrPct(60); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '7':
-		if err := civControl.setPwr(70); err != nil {
+		if err := civControl.setPwrPct(70); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '8':
-		if err := civControl.setPwr(80); err != nil {
+		if err := civControl.setPwrPct(80); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '9':
-		if err := civControl.setPwr(90); err != nil {
+		if err := civControl.setPwrPct(90); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case ')':
-		if err := civControl.setPwr(100); err != nil {
+		if err := civControl.setPwrPct(100); err != nil {
 			log.Error("can't set power: ", err)
 		}
 	case '!':
-		if err := civControl.setRFGain(10); err != nil {
+		if err := civControl.setRFGainPct(10); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '@':
-		if err := civControl.setRFGain(20); err != nil {
+		if err := civControl.setRFGainPct(20); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '#':
-		if err := civControl.setRFGain(30); err != nil {
+		if err := civControl.setRFGainPct(30); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '$':
-		if err := civControl.setRFGain(40); err != nil {
+		if err := civControl.setRFGainPct(40); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '%':
-		if err := civControl.setRFGain(50); err != nil {
+		if err := civControl.setRFGainPct(50); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '^':
-		if err := civControl.setRFGain(60); err != nil {
+		if err := civControl.setRFGainPct(60); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '&':
-		if err := civControl.setRFGain(70); err != nil {
+		if err := civControl.setRFGainPct(70); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '*':
-		if err := civControl.setRFGain(80); err != nil {
+		if err := civControl.setRFGainPct(80); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '(':
-		if err := civControl.setRFGain(90); err != nil {
+		if err := civControl.setRFGainPct(90); err != nil {
 			log.Error("can't set rfgain: ", err)
 		}
 	case '\'':
@@ -201,7 +201,7 @@ func handleHotkey(k byte) {
 		}
 	case 'q':
 		quitChan <- true
-    default:
-        log.Error(fmt.Sprintf("INFO: no action mapped to key [%v]\n", string(k)))
+	default:
+		log.Error(fmt.Sprintf("INFO: no action mapped to key [%v]\n", string(k)))
 	}
 }
